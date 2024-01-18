@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<Properties>
+		<Property name="LOG_PATTERN">%d{HH:mm:ss.SSS} [%p] --- [%10.50t]
+			%-1.50c{1.}.%-1.20M:%L: %m%n%</Property>
+	</Properties>
+
+	<Appenders>
+		<Console name="Console_Appender" target="SYSTEM_OUT">
+			<PatternLayout pattern="${LOG_PATTERN}" />
+		</Console>
+		<RollingFile name="file"
+			fileName="C:/logs/log/${date:yyyy}/${date:MM}/${date:dd}/dailyLog.log"
+			filePattern="C:/logs/log/${date:yyyy}/${date:MM}/${date:dd}/dailyLog_%d{yyyyMMdd}.log">
+			<PatternLayout
+				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+			</Policies>
+		</RollingFile>
+		<JDBC name="db" tableName="test_log">
+			<ConnectionFactory 
+				class="kr.or.ddit.util.ConnectionFactory"
+				method="getDatabaseConnection" />
+			<Column name="reg_dt" isEventTimestamp="true" />
+			<Column name="levell" pattern="%p" />
+			<Column name="logger" pattern="%c" />
+			<Column name="message" pattern="%m" />
+			<Column name="exception" pattern="%ex{full}" />
+			<Filters>
+				<ThresholdFilter level="INFO" onMatch="DENY"
+					onMismatch="NEUTRAL" />
+				<RegexFilter regex=".*Exception.*" onMatch="NEUTRAL"
+					onMismatch="DENY" />
+				<RegexFilter regex=".*exception.*" onMatch="NEUTRAL"
+					onMismatch="DENY" />
+			</Filters>
+		</JDBC>
+	</Appenders>
+
+	<Loggers>
+		<Root level="DEBUG" additivity="false">
+			<AppenderRef ref="Console_Appender" />
+			<AppenderRef ref="file" />
+			<AppenderRef ref="db" />
+		</Root>
+		
+		<logger name="kr.or.ddit" level="debug" additivity="false">
+			<Appender-ref ref="db" />
+			<AppenderRef ref="Console_Appender" />
+			<AppenderRef ref="file" />
+		</logger>
+		
+		<Logger name="org.springframework" level="ERROR"
+			additivity="false">
+			<AppenderRef ref="Console_Appender" />
+		</Logger>
+
+		<Logger name="com.filmsus.myapp" level="INFO"
+			additivity="false">
+			<AppenderRef ref="Console_Appender" />
+		</Logger>
+
+		<logger name="log4jdbc.log4j2" level="ERROR" additivity="false">
+			<Appender-ref ref="Console_Appender" />
+		</logger>
+	</Loggers>
+
+</configuration>

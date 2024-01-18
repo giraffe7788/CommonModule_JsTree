@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.OrganizationMapper">
+	
+	<resultMap type="ozVO" id="ozMap">
+		<result property="organizationCode" column="ORGANIZATION_CODE"/>
+		<result property="organizationName" column="ORGANIZATION_NAME"/>
+		<result property="organizationParentCode" column="ORGANIZATION_PARENT_CODE"/>
+		<result property="organizationDescription" column="ORGANIZATION_DESCRIPTION"/>
+	</resultMap>
+	
+	<select id="chartList" resultMap="ozMap">
+		SELECT * FROM ORGANIZATION_CHART
+	</select>
+	
+	<insert id="create" parameterType="ozVO">
+		INSERT INTO ORGANIZATION_CHART (ORGANIZATION_CODE, ORGANIZATION_NAME, ORGANIZATION_PARENT_CODE)
+		VALUES (#{organizationCode}, #{organizationName}, #{organizationParentCode})
+	</insert>
+	
+	<delete id="delete" parameterType="String">
+		DELETE FROM ORGANIZATION_CHART
+		WHERE ORGANIZATION_CODE = #{organizationCode}
+	</delete>
+	
+	<select id="detail" parameterType="String" resultMap="ozMap">
+		SELECT * FROM ORGANIZATION_CHART
+		WHERE ORGANIZATION_CODE = #{organizationCode}
+	</select>
+	
+</mapper>
