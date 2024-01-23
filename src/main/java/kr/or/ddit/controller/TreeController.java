@@ -20,25 +20,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/tree")
-public class LogController {
+public class TreeController {
 	
 	private final TreeService treeService;
 	
-	// 형택이형의 절규
-	@ResponseBody
-	@GetMapping("/log")
-	public String log() {
-		log.error("제발 살려주세요");
-		return "제발";
-	}
-	
 	// 메인화면이동
-	@GetMapping
-	public void tree(Model model) {
-		
+	@GetMapping("/main")
+	public String tree(Model model) {
 		List<OrganizationChartVO> chartList = this.treeService.chartList();
 		model.addAttribute("chartList", chartList);
-		
+		return "tree";
 	}
 	
 	// renderTree()의 ajax의 url
