@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>JsTree</title>
+	
+	<!-- jQuery -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	
+	<!-- jstree js -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+	
+	<!-- jstree css -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css">
+
+	<!-- sweetalert -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.css" />
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.js"></script>
+	
+	<style>
+	    .jstree-search {
+	        font-style: normal !important;
+			color: #000000 !important;
+		    background-color: #ffdbdb;
+		    font-weight: bold;
+	    }
+	</style>
+</head>
+
+<body class="d-flex justify-content-center">
+	<div>---htmlData---</div>
+	<div id="htmlData">
+	  	<ul>
+	    	<li	class="jstree-open">
+				부모노드 1
+				<ul>
+					<li class="jstree-clicked">자식노드 1</li>
+					<li>자식노드 2</li>
+				</ul>
+			</li>
+	    	<li>
+				부모노드 2
+				<ul>
+					<li data-jstree='{"disabled":true}'>자식노드3</li>
+					<li data-jstree='{"
+										icon":"/icon_tree.png",
+									  	"disabled":true
+									 }'>자식노드4</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+	
+	<br><br>
+	<input id="searchNode" type="text" placeholder="검색">
+	<br>
+	<div>---jsonData---</div>
+	<div id="jsonData">
+		
+	</div>
+	
+	<br><br>
+	<div>선택된 노드 id</div>
+	<div id="selected">
+		
+	</div>
+</body>
+</html>
+<script>
+$(function(){
+	
+	$('#htmlData').jstree();
+	
+	// 트리구조로 만들 데이터
+	let treeData = [
+		{
+			// 노드 일련번호
+			id: "1",
+			// 부모노드 일련번호, 최상위 노드는 부모 노드를 #로 설정
+			parentId : "#",
+			name : "숲",
+			icon : "forest"
+		},
+		{
+			id: "2",
+			parentId : "1",
+			name : "나무1",
+			icon : "tree"
+		},
+		{
+			id: "3",
+			parentId : "1",
+			name : "수풀",
+			icon : "bush"
+		},
+		{
+			id: "4",
+			parentId : "2",
+			name : "둥지",
+			icon : "nest"
+		},
+		{
+			id: "5",
+			parentId : "3",
+			name : "호랑이",
+			icon : "tiger"
+		},
+		{
+			id: "6",
+			parentId : "1",
+			name : "나무2",
+			icon : "tree"
+		}
+	]
+	
+	renderTree();
+	
+	function renderTree(){
+		
+		// 노드 정보를 저장하기 위한 변수
+		let nodeData = [];
+		
+		// 데이터 길이만큼 반복
+		let dataLength = treeData.length;
+		for(let i = 0; i < dataLength; i++){
+			
+			// 가지고 있던 데이터를 트리구조로 만들어주기 위해 데이터를 변경해서 넣어줌
+			let tempObj = {
+				// *필수 자신의 코드 저장
+				id: treeData[i].id,
+				// *필수 부모의 id 지정
+				parent: treeData[i].parentId,
+				// 이름 저장
+				text: treeData[i].name,
+				// 노드의 유형 지정
+				type: treeData[i].icon,
+				// 노드 상태 설정
+				state: {
+					opened: true, 	 // 열림,닫힘 설정
+					disabled: false, // 비활성화 설정
+					selected: false  // 선택돼있는지 설정
+				}
+			};
+			nodeData.push(tempObj);
+		}
+		
+		$('#jsonData').jstree({
+			
+			core: {
+				data: nodeData
+			},
+			
+			plugins : ["search", "types"],
+			
+			types : {
+			    'forest' : {
+			        "icon" : "/icons/icon-forest.png",
+			    },
+				'tree' : {
+				    "icon" : "/icons/icon-tree.png",
+				},
+				'bush' : {
+				    "icon" : "/icons/icon-bush.png",
+				},
+				'nest' : {
+				    "icon" : "/icons/icon-nest.png",
+				},
+				'tiger' : {
+				    "icon" : "/icons/icon-tiger.png",
+				},
+			    default: {
+			        "icon": "/icons/icon-default.png"
+			    }
+			}
+		})
+	}
+	
+	$('#jsonData').on('hover_node.jstree', function(){
+		// alert("hover_node발생");
+	})
+	
+	// 노드 선택 이벤트
+	$('#jsonData').on('select_node.jstree', function(){
+
+		// jsTree 내장함수로 선택된 노드들의 정보 가져오기
+		const selectedArr = $("#jsonData").jstree(true).get_selected(true);
+		
+		// 선택된 노드들의 id정보를 담을 변수
+		let idStr = '';
+		
+		// 선택된 노드들의 개수만큼 반복
+		$.each(selectedArr, function(index, selected){
+			// 해당 노드의 id를 변수에 추가
+			idStr += selected.id + ", "
+		})
+		
+		// div에 반영
+		$('#selected').html(idStr);
+	})
+	
+	$('#searchNode').on('keyup', function(){
+		let keyword = $('#searchNode').val();
+		$('#jsonData').jstree(true).search(keyword);
+	})
+})
+</script>
